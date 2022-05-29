@@ -1,0 +1,31 @@
+name: Build
+
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the master branch
+  push:
+    branches-ignore:
+      - master
+
+  workflow_dispatch:
+    inputs:
+        Reason:
+          description: "Reason to use workflow_dispatch"
+          required: true
+          default: "Test Dockerfile"
+jobs:
+  build:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Docker Image
+        run: |
+          if [ -f docker-compose.test.yml ]; then
+            docker-compose --file docker-compose.test.yml build
+            docker-compose --file docker-compose.test.yml run sut
+          else
+            docker build . --file Dockerfile
+          fi
